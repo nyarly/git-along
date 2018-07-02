@@ -1,10 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"os"
+
 	"github.com/nyarly/git-along/along"
 )
 
 func main() {
-	along.Execute()
+	if err := along.Execute(); err != nil {
+		os.Exit(1)
+	}
 }

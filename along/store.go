@@ -15,8 +15,11 @@
 package along
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -30,23 +33,73 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: runStore,
+	RunE: runStore,
+	Args: cobra.ExactArgs(1),
 }
 
 func init() {
 	alongCmd.AddCommand(storeCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// storeCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// storeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func runStore(cmd *cobra.Command, args []string) {
-	fmt.Println("store called")
+type fileObject struct {
+	path, hash string
+}
+
+func (obj fileObject) treeEntry() string {
+	return fmt.Sprintf("100644 blob %s\t%s", obj.hash, obj.path)
+}
+
+func runStore(cmd *cobra.Command, args []string) error {
+	branch := args[0]
+	pathlist, err := stashedfiles(branch)
+	if err != nil {
+		return err
+	}
+
+	objects := []fileObject{}
+	for _, path := range pathlist {
+		hash, err := git("hash-object", "-w", path)
+		if err != nil {
+			return err
+		}
+
+		objects = append(objects, fileObject{
+			path: path,
+			hash: strings.TrimSpace(string(hash)),
+		})
+	}
+
+	treeList := []string{}
+	for _, obj := range objects {
+		treeList = append(treeList, obj.treeEntry())
+	}
+
+	lstree := strings.Join(treeList, "\n")
+
+	mktree := makeGit("mktree")
+	mktree.Stdin = bytes.NewBufferString(lstree)
+	treeid, err := runGit(mktree)
+	if err != nil {
+		return err
+	}
+	treeid = bytes.TrimSpace(treeid)
+	if len(treeid) == 0 {
+		return errors.Errorf("treeid is empty")
+	}
+
+	commitid, err := git("commit-tree", "-p", branch, "-m", "git-along", string(treeid))
+	if err != nil {
+		return err
+	}
+	commitid = bytes.TrimSpace(commitid)
+	if len(commitid) == 0 {
+		return errors.Errorf("commitid is empty")
+	}
+
+	git("update-ref", branchhead(branch), string(commitid))
+	return nil
+}
+
+func branchhead(branch string) string {
+	return fmt.Sprintf("refs/heads/%s", branch)
 }

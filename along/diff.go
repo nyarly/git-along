@@ -22,30 +22,20 @@ import (
 
 // diffCmd represents the diff command
 var diffCmd = &cobra.Command{
-	Use:   "diff",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "diff [flags] <branch>",
+	Short: "Prints a diff of workspace files and their branch version.",
+	Long: `Prints out a difference of the files in your current workspace
+and the version recorded at the head of their along branch.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Example:
+> git along diff direnv
+No difference.`,
 	RunE: runDiff,
 	Args: cobra.ExactArgs(1),
 }
 
 func init() {
 	alongCmd.AddCommand(diffCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// diffCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// diffCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func runDiff(cmd *cobra.Command, args []string) error {
@@ -55,6 +45,24 @@ func runDiff(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println(pathlist)
+	hasDiff := false
+	for _, path := range pathlist {
+		diff, err := git("diff", branchpath(branch, path), path)
+		if err != nil {
+			return err
+		}
+		if len(diff) != 0 {
+			fmt.Printf("%s:\n%s\n\n", path, diff)
+			hasDiff = true
+		}
+	}
+	if !hasDiff {
+		fmt.Printf("No differences\n")
+	}
+
 	return nil
+}
+
+func branchpath(branch, path string) string {
+	return fmt.Sprintf("%s:%s", branch, path)
 }
