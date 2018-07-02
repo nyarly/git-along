@@ -15,7 +15,9 @@
 package along
 
 import (
-	"fmt"
+	"bytes"
+	"io"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -30,23 +32,42 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: runRetrieve,
+	RunE: runRetrieve,
+	Args: cobra.ExactArgs(1),
 }
 
 func init() {
 	alongCmd.AddCommand(retrieveCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// retrieveCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// retrieveCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func runRetrieve(cmd *cobra.Command, args []string) {
-	fmt.Println("retrieve called")
+func runRetrieve(cmd *cobra.Command, args []string) error {
+	branch := args[0]
+	pathlist, err := stashedfiles(branch)
+	if err != nil {
+		return err
+	}
+
+	for _, path := range pathlist {
+		contents, err := git("show", branchpath(branch, path))
+		if err != nil {
+			return err
+		}
+		dst, err := os.Create(path)
+		if err != nil {
+			return err
+		}
+		defer dst.Close()
+		src := bytes.NewBuffer(contents)
+		_, err = io.Copy(dst, src)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
+
+/*
+for p in $paths; do
+  git show "${branch}:${p}" > "$p"
+done
+*/

@@ -99,7 +99,3 @@ func runStore(cmd *cobra.Command, args []string) error {
 	git("update-ref", branchhead(branch), string(commitid))
 	return nil
 }
-
-func branchhead(branch string) string {
-	return fmt.Sprintf("refs/heads/%s", branch)
-}

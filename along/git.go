@@ -49,3 +49,11 @@ func configstash(branch string) string {
 func stashedfile(branch string) string {
 	return fmt.Sprintf("branch.%s.stashedfile", branch)
 }
+
+func branchhead(branch string) string {
+	return fmt.Sprintf("refs/heads/%s", branch)
+}
+
+func branchpath(branch, path string) string {
+	return fmt.Sprintf("%s:%s", branch, path)
+}

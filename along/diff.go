@@ -62,7 +62,3 @@ func runDiff(cmd *cobra.Command, args []string) error {
 
 	return nil
 }
-
-func branchpath(branch, path string) string {
-	return fmt.Sprintf("%s:%s", branch, path)
-}
