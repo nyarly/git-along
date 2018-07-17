@@ -30,7 +30,7 @@ var removeCmd = &cobra.Command{
 }
 
 func init() {
-	alongCmd.RemoveCommand(removeCmd)
+	alongCmd.AddCommand(removeCmd)
 }
 
 func runRemove(cmd *cobra.Command, args []string) error {
