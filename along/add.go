@@ -18,30 +18,28 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// storeCmd represents the store command
-var storeCmd = &cobra.Command{
-	Use:   "store",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	RunE: runStore,
-	Args: cobra.ExactArgs(1),
+// addCmd represents the add command
+var addCmd = &cobra.Command{
+	Use:   "add <branch> <file>",
+	Short: "add a file to a stashbranch",
+	Long:  `Adds a file to a particular stashbranch.`,
+	RunE:  runAdd,
+	Args:  cobra.ExactArgs(2),
 }
 
 func init() {
-	alongCmd.AddCommand(storeCmd)
+	alongCmd.AddCommand(addCmd)
 }
 
-func runStore(cmd *cobra.Command, args []string) error {
+func runAdd(cmd *cobra.Command, args []string) error {
 	branch := args[0]
+	path := args[1]
+
 	pathlist, err := stashedfiles(branch)
 	if err != nil {
 		return err
 	}
+	pathlist = append(pathlist, path)
 
 	return storePaths(branch, pathlist)
 }
