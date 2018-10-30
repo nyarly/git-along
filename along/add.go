@@ -15,6 +15,7 @@
 package along
 
 import (
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -38,6 +39,11 @@ func runAdd(cmd *cobra.Command, args []string) error {
 	pathlist, err := stashedfiles(branch)
 	if err != nil {
 		return err
+	}
+	for _, p := range pathlist {
+		if p == path {
+			return errors.Errorf("%q already recorded in %q", path, branch)
+		}
 	}
 	pathlist = append(pathlist, path)
 
