@@ -18,18 +18,15 @@ var (
 			Rough example of use:
 
 			Setup:
-			git branch nixsupport
-			git config --bool branch.nixsupport.configstash true
-			# optionally, add files...
+			git along new-stash nixsupport
 			git along add nixsupport shell.nix
-			git along add nixsupport .envrc
-
-			git remote add along github.com/me/myconfigs
-			git push along/nix-thisproject nixsupport
+			git remote add along git@github.com:me/myconfigs.git
+			git push -u along nixsupport:nix-thisproject
 
 			Normal use:
-			got along diff # to check for changes
+			git along diff # to check for changes
 			git along store nixsupport
+			git along add nixsupport .envrc
 			git push nixsupport
 
 			git pull nixsupport

@@ -8,15 +8,22 @@ Install: `go get github.com/nyarly/git-along/along`
 
 Rough example of use:
 
+### Setup
 ```
-git branch nixsupport
-git config --bool branch.nixsupport.configstash true
+git along new-stash nixsupport
 git along add nixsupport shell.nix
 git along add nixsupport .envrc
 git remote add along github.com/me/myconfigs
-git push along/nix-thisproject nixsupport
-<edit>
+git push -u along nixsupport:nix-thisproject
+```
+
+### Day to day
+```
+git along diff # to check for changes
 git along store nixsupport
+git push nixsupport
+
+git pull nixsupport
 git along retrieve nixsupport
 ```
 
@@ -34,6 +41,5 @@ But all in all, it works well for what it’s supposed to do: allow for the cont
 
 * Branching from stash branches
 * Figure out what to call "stash branches"
-* Streamline stash branch setup
 * History
 * Remotes
