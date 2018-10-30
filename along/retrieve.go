@@ -24,14 +24,12 @@ import (
 
 // retrieveCmd represents the retrieve command
 var retrieveCmd = &cobra.Command{
-	Use:   "retrieve",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "retrieve <branch>",
+	Short: "get files out of the stashbranch",
+	Long: longUsage(
+		`Updates files from the stashbranch. Checks out all the files recorded
+		there. Will clobber the local versions of any files that exist. Note that
+		old-but-removed stashed files will not be deleted.`),
 	RunE: runRetrieve,
 	Args: cobra.ExactArgs(1),
 }

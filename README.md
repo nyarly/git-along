@@ -13,7 +13,8 @@ git branch nixsupport
 git config --bool branch.nixsupport.configstash true
 git along add nixsupport shell.nix
 git along add nixsupport .envrc
-git push origin nixsupport
+git remote add along github.com/me/myconfigs
+git push along/nix-thisproject nixsupport
 <edit>
 git along store nixsupport
 git along retrieve nixsupport
@@ -31,7 +32,6 @@ But all in all, it works well for what it’s supposed to do: allow for the cont
 
 # Future work
 
-* Auto gitignore
 * Branching from stash branches
 * Figure out what to call "stash branches"
 * Streamline stash branch setup

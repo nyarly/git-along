@@ -3,6 +3,7 @@ package along
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -31,6 +32,11 @@ func runGit(git *exec.Cmd) ([]byte, error) {
 		return nil, errors.Wrapf(err, "%s:\n\t%s%s", strings.Join(git.Args, " "), strings.TrimSpace(string(out)), string(ee.Stderr))
 	}
 	return out, errors.Wrapf(err, "%s", strings.Join(git.Args, " "))
+}
+
+func nonZeroExit(err error) bool {
+	_, is := errors.Cause(err).(*exec.ExitError)
+	return is
 }
 
 func stashedfiles(branch string) ([]string, error) {
@@ -67,12 +73,42 @@ func branchpath(branch, path string) string {
 }
 
 func storePaths(branch string, pathlist []string) error {
+	if err := excludePaths(pathlist); err != nil {
+		return err
+	}
+
 	lstree, err := pathsTree(pathlist)
 	if err != nil {
 		return err
 	}
 
 	return storeTree(branch, lstree)
+}
+
+func excludePaths(pathlist []string) error {
+	for _, path := range pathlist {
+		if _, fail := git("check-ignore", "-q", path); fail != nil {
+			if !nonZeroExit(fail) {
+				return fail
+			}
+			if err := excludePath(path); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func excludePath(path string) error {
+	excludeFile, err := os.OpenFile(".git/info/exclude", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer excludeFile.Close()
+	if _, err := excludeFile.Write(append([]byte(path), '\n')); err != nil {
+		return err
+	}
+	return nil
 }
 
 func pathsTree(pathlist []string) (string, error) {
