@@ -39,19 +39,49 @@ func nonZeroExit(err error) bool {
 	return is
 }
 
+func emptyBranch(name string) error {
+	treeid, err := makeTree("")
+	if err != nil {
+		return err
+	}
+	commitid, err := git("commit-tree", "-m", "git-along", string(treeid))
+	if err != nil {
+		return err
+	}
+	commitid = bytes.TrimSpace(commitid)
+	if len(commitid) == 0 {
+		return errors.Errorf("commitid is empty")
+	}
+
+	if _, err := git("branch", "--no-track", name, string(commitid)); err != nil {
+		return err
+	}
+
+	stashkey := configstash(name)
+	_, err = git("config", "--bool", stashkey, "true")
+	return err
+}
+
 func stashedfiles(branch string) ([]string, error) {
+	var err error
 	stashkey := configstash(branch)
-	configstash, err := git("config", stashkey)
+	configstash := []byte("<unset>")
+
+	configstash, err = git("config", stashkey)
+	if nonZeroExit(err) || strings.TrimSpace(string(configstash)) != "true" {
+		return nil, errors.Errorf("Branch %q is not listed as a configstash branch!\n (try: `git config --bool %s true`, is currently %q)", branch, stashkey, configstash)
+	}
 	if err != nil {
 		return nil, err
-	}
-	if strings.TrimSpace(string(configstash)) != "true" {
-		return nil, errors.Errorf("Branch $branch is not listed as a configstash branch!\n (try: `git config --bool %s true`, is currently %q)", stashkey, configstash)
 	}
 
 	paths, err := git("ls-tree", "--name-only", branch)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(paths) == 0 {
+		return []string{}, nil
 	}
 	return strings.Split(strings.TrimSpace(string(paths)), "\n"), nil
 }
@@ -134,13 +164,10 @@ func pathsTree(pathlist []string) (string, error) {
 }
 
 func storeTree(branch, lstree string) error {
-	mktree := makeGit("mktree")
-	mktree.Stdin = bytes.NewBufferString(lstree)
-	treeid, err := runGit(mktree)
+	treeid, err := makeTree(lstree)
 	if err != nil {
 		return err
 	}
-	treeid = bytes.TrimSpace(treeid)
 	if len(treeid) == 0 {
 		return errors.Errorf("treeid is empty")
 	}
@@ -156,4 +183,18 @@ func storeTree(branch, lstree string) error {
 
 	_, err = git("update-ref", branchhead(branch), string(commitid))
 	return err
+}
+
+func makeTree(lstree string) ([]byte, error) {
+	mktree := makeGit("mktree")
+	mktree.Stdin = bytes.NewBufferString(lstree)
+	treeid, err := runGit(mktree)
+	if err != nil {
+		return []byte{}, err
+	}
+	treeid = bytes.TrimSpace(treeid)
+	if len(treeid) == 0 {
+		return []byte{}, errors.Errorf("treeid is empty")
+	}
+	return treeid, nil
 }

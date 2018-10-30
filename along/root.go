@@ -23,7 +23,9 @@ var (
 			# optionally, add files...
 			git along add nixsupport shell.nix
 			git along add nixsupport .envrc
-			git push origin nixsupport
+
+			git remote add along github.com/me/myconfigs
+			git push along/nix-thisproject nixsupport
 
 			Normal use:
 			got along diff # to check for changes
