@@ -3,6 +3,7 @@ package along
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -27,11 +28,15 @@ func makeGit(args ...string) *exec.Cmd {
 }
 
 func runGit(git *exec.Cmd) ([]byte, error) {
+	watch := &bytes.Buffer{}
+	if git.Stdin != nil {
+		git.Stdin = io.TeeReader(git.Stdin, watch)
+	}
 	out, err := git.CombinedOutput()
 	if ee, is := err.(*exec.ExitError); is {
-		return nil, errors.Wrapf(err, "%s:\n\t%s%s", strings.Join(git.Args, " "), strings.TrimSpace(string(out)), string(ee.Stderr))
+		return nil, errors.Wrapf(err, "%s:\n\t%s%s\nconsumed stdin: \n%s", strings.Join(git.Args, " "), strings.TrimSpace(string(out)), string(ee.Stderr), watch.String())
 	}
-	return out, errors.Wrapf(err, "%s", strings.Join(git.Args, " "))
+	return out, errors.Wrapf(err, "%s\nconsumed stdin: \n%s", strings.Join(git.Args, " "), watch.String())
 }
 
 func nonZeroExit(err error) bool {
