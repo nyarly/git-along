@@ -72,7 +72,7 @@ func stashedfiles(branch string) ([]string, error) {
 		return nil, err
 	}
 
-	paths, err := git("ls-tree", "--name-only", branch)
+	paths, err := git("ls-tree", "--name-only", "-r", branch)
 	if err != nil {
 		return nil, err
 	}
