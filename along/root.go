@@ -38,7 +38,7 @@ var (
 )
 
 func init() {
-	alongCmd.PersistentFlags().StringVarP(&stashBranchName, "branchname", "b", "along", "the branch to work against (default: along)")
+	alongCmd.PersistentFlags().StringVarP(&stashBranchName, "branchname", "b", "along", "the branch to work against")
 }
 
 // Execute runs the along command.

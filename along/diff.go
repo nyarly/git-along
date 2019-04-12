@@ -38,7 +38,6 @@ func init() {
 }
 
 func runDiff(cmd *cobra.Command, args []string) error {
-	stashBranchName := args[0]
 	pathlist, err := stashedfiles(stashBranchName)
 	if err != nil {
 		return err
