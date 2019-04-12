@@ -22,11 +22,12 @@ import (
 
 // removeCmd represents the remove command
 var removeCmd = &cobra.Command{
-	Use:   "remove <branch> <file>",
-	Short: "remove a file to a stashbranch",
-	Long:  `Removes a file to a particular stashbranch.`,
-	RunE:  runRemove,
-	Args:  cobra.ExactArgs(2),
+	Use:        "remove <file>",
+	Short:      "remove a file to a stashbranch",
+	Long:       `Removes a file to a particular stashbranch.`,
+	RunE:       runRemove,
+	ArgAliases: []string{"rm"},
+	Args:       cobra.ExactArgs(1),
 }
 
 func init() {
@@ -34,10 +35,9 @@ func init() {
 }
 
 func runRemove(cmd *cobra.Command, args []string) error {
-	branch := args[0]
-	path := args[1]
+	path := args[0]
 
-	pathlist, err := stashedfiles(branch)
+	pathlist, err := stashedfiles(stashBranchName)
 	if err != nil {
 		return err
 	}
@@ -49,10 +49,10 @@ func runRemove(cmd *cobra.Command, args []string) error {
 		}
 	}
 	if n == -1 {
-		return fmt.Errorf("%s not in %s", path, branch)
+		return fmt.Errorf("%s not in %s", path, stashBranchName)
 	}
 	pathlist[n] = pathlist[len(pathlist)-1]
 	pathlist = pathlist[:len(pathlist)-1]
 
-	return storePaths(branch, pathlist)
+	return storePaths(stashBranchName, pathlist)
 }

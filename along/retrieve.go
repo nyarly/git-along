@@ -24,7 +24,7 @@ import (
 
 // retrieveCmd represents the retrieve command
 var retrieveCmd = &cobra.Command{
-	Use:   "retrieve <branch>",
+	Use:   "retrieve",
 	Short: "get files out of the stashbranch",
 	Long: longUsage(
 		`Updates files from the stashbranch. Checks out all the files recorded
@@ -39,14 +39,13 @@ func init() {
 }
 
 func runRetrieve(cmd *cobra.Command, args []string) error {
-	branch := args[0]
-	pathlist, err := stashedfiles(branch)
+	pathlist, err := stashedfiles(stashBranchName)
 	if err != nil {
 		return err
 	}
 
 	for _, path := range pathlist {
-		contents, err := git("show", branchpath(branch, path))
+		contents, err := git("show", branchpath(stashBranchName, path))
 		if err != nil {
 			return err
 		}
@@ -63,9 +62,3 @@ func runRetrieve(cmd *cobra.Command, args []string) error {
 	}
 	return nil
 }
-
-/*
-for p in $paths; do
-  git show "${branch}:${p}" > "$p"
-done
-*/

@@ -26,7 +26,6 @@ var listCmd = &cobra.Command{
 	Short: "list paths in a stashbranch",
 	Long:  `Returns a list of the paths stored in the chosen branch`,
 	RunE:  runList,
-	Args:  cobra.ExactArgs(1),
 }
 
 func init() {
@@ -34,8 +33,7 @@ func init() {
 }
 
 func runList(cmd *cobra.Command, args []string) error {
-	branch := args[0]
-	pathlist, err := stashedfiles(branch)
+	pathlist, err := stashedfiles(stashBranchName)
 	if err != nil {
 		return err
 	}

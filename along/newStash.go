@@ -17,7 +17,7 @@ var newStashCmd = &cobra.Command{
 }
 
 func runNewStash(cmd *cobra.Command, args []string) error {
-	name := "along"
+	name := stashBranchName
 	if len(args) > 0 {
 		name = args[0]
 	}

@@ -9,7 +9,8 @@ var (
 		Use:   "git-along",
 		Short: "git along gives config files a branch of their own to live in.",
 		Long: longUsage(
-			`creates raw branches for specific files in your repo, so that you can use them
+			`git-along:
+      creates raw branches for specific files in your repo, so that you can use them
 			without polluting the repo and let them evolve separately from the code.
 			git-along acts like a specialized porcelain,
 			so it ignores git’s normal rules (e.g. .gitignore),
@@ -18,23 +19,26 @@ var (
 			Rough example of use:
 
 			Setup:
-			git along new-stash nixsupport
-			git along add nixsupport shell.nix
+			git along new-stash
+			git along add  shell.nix
 			git remote add along git@github.com:me/myconfigs.git
-			git push -u along nixsupport:nix-thisproject
+			git push -u along along:nix-thisproject
 
 			Normal use:
 			git along diff # to check for changes
-			git along store nixsupport
-			git along add nixsupport .envrc
-			git push nixsupport
+			git along store
+			git along add  .envrc
+			git push along
 
-			git pull nixsupport
-			git along retrieve nixsupport`),
+			git pull along
+			git along retrieve`),
 	}
+
+	stashBranchName = "along"
 )
 
 func init() {
+	alongCmd.PersistentFlags().StringVar(&stashBranchName, "branchname", "along", "the branch to work against (default: along)")
 }
 
 // Execute runs the along command.

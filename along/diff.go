@@ -22,16 +22,15 @@ import (
 
 // diffCmd represents the diff command
 var diffCmd = &cobra.Command{
-	Use:   "diff [flags] <branch>",
+	Use:   "diff [flags]",
 	Short: "Prints a diff of workspace files and their branch version.",
 	Long: `Prints out a difference of the files in your current workspace
 and the version recorded at the head of their along branch.
 
 Example:
-> git along diff direnv
+> git along diff
 No difference.`,
 	RunE: runDiff,
-	Args: cobra.ExactArgs(1),
 }
 
 func init() {
@@ -39,15 +38,15 @@ func init() {
 }
 
 func runDiff(cmd *cobra.Command, args []string) error {
-	branch := args[0]
-	pathlist, err := stashedfiles(branch)
+	stashBranchName := args[0]
+	pathlist, err := stashedfiles(stashBranchName)
 	if err != nil {
 		return err
 	}
 
 	hasDiff := false
 	for _, path := range pathlist {
-		diff, err := git("diff", branchpath(branch, path), path)
+		diff, err := git("diff", branchpath(stashBranchName, path), path)
 		if err != nil {
 			return err
 		}

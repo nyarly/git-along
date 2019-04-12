@@ -20,13 +20,12 @@ import (
 
 // storeCmd represents the store command
 var storeCmd = &cobra.Command{
-	Use:   "store <branch>",
+	Use:   "store",
 	Short: "save stashed files",
 	Long: longUsage(
-		`stores the files tracked by git along into their stash branch. You'll use
+		`stores the files tracked by git along into their stash stashBranchName. You'll use
 		this commonly to commit changes to those files.`),
 	RunE: runStore,
-	Args: cobra.ExactArgs(1),
 }
 
 func init() {
@@ -34,11 +33,10 @@ func init() {
 }
 
 func runStore(cmd *cobra.Command, args []string) error {
-	branch := args[0]
-	pathlist, err := stashedfiles(branch)
+	pathlist, err := stashedfiles(stashBranchName)
 	if err != nil {
 		return err
 	}
 
-	return storePaths(branch, pathlist)
+	return storePaths(stashBranchName, pathlist)
 }
