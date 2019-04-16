@@ -31,7 +31,6 @@ var retrieveCmd = &cobra.Command{
 		there. Will clobber the local versions of any files that exist. Note that
 		old-but-removed stashed files will not be deleted.`),
 	RunE: runRetrieve,
-	Args: cobra.ExactArgs(1),
 }
 
 func init() {

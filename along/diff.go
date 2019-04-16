@@ -16,6 +16,7 @@ package along
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -45,6 +46,12 @@ func runDiff(cmd *cobra.Command, args []string) error {
 
 	hasDiff := false
 	for _, path := range pathlist {
+		_, err := os.Stat(path)
+		if os.IsNotExist(err) {
+      fmt.Printf("present in %q but not in workspace: %s\n", stashBranchName, path)
+			continue
+		}
+
 		diff, err := git("diff", branchpath(stashBranchName, path), path)
 		if err != nil {
 			return err
