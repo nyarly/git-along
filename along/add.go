@@ -25,7 +25,7 @@ var addCmd = &cobra.Command{
 	Short: "add a file to a stashbranch",
 	Long:  `Adds a file to a particular stashbranch.`,
 	RunE:  runAdd,
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MinimumNArgs(1),
 }
 
 func init() {
@@ -33,18 +33,19 @@ func init() {
 }
 
 func runAdd(cmd *cobra.Command, args []string) error {
-	path := args[0]
-
 	pathlist, err := stashedfiles(stashBranchName)
-	if err != nil {
-		return err
-	}
-	for _, p := range pathlist {
-		if p == path {
-			return errors.Errorf("%q already recorded in %q", path, stashBranchName)
+
+	for _, path := range args {
+		if err != nil {
+			return err
 		}
+		for _, p := range pathlist {
+			if p == path {
+				return errors.Errorf("%q already recorded in %q", path, stashBranchName)
+			}
+		}
+		pathlist = append(pathlist, path)
 	}
-	pathlist = append(pathlist, path)
 
 	return storePaths(stashBranchName, pathlist)
 }
