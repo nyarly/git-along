@@ -30,7 +30,8 @@ var (
 			git along add  .envrc
 			git push along
 
-			git pull along
+      # Note that you want to merge the remote branch without checkout
+      git fetch along +nix-thisproject:along
 			git along retrieve`),
 	}
 

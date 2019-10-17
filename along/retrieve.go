@@ -59,5 +59,5 @@ func runRetrieve(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	}
-	return nil
+  return excludePaths(pathlist)
 }

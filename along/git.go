@@ -109,19 +109,21 @@ func storePaths(branch string, pathlist []string) error {
 
 func excludePaths(pathlist []string) error {
 	for _, path := range pathlist {
-		if _, fail := git("check-ignore", "-q", path); fail != nil {
-			if !nonZeroExit(fail) {
-				return fail
-			}
-			if err := excludePath(path); err != nil {
-				return err
-			}
-		}
+    if err := excludePath(path); err != nil {
+      return err
+    }
 	}
 	return nil
 }
 
 func excludePath(path string) error {
+  if _, fail := git("check-ignore", "-q", path); fail != nil {
+    if nonZeroExit(fail) { // already ignored
+      return nil
+    }
+
+    return fail
+  }
 	excludeFile, err := os.OpenFile(".git/info/exclude", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
