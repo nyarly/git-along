@@ -118,11 +118,11 @@ func excludePaths(pathlist []string) error {
 
 func excludePath(path string) error {
   if _, fail := git("check-ignore", "-q", path); fail != nil {
-    if nonZeroExit(fail) { // already ignored
-      return nil
+    if !nonZeroExit(fail) { // not ignored
+      return fail
     }
-
-    return fail
+  } else {
+    return nil // already ignored
   }
 	excludeFile, err := os.OpenFile(".git/info/exclude", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
