@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"git-along/along"
+	"github.com/nyarly/git-along/along"
 )
 
 func main() {

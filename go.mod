@@ -1,4 +1,4 @@
-module git-along
+module github.com/nyarly/git-along
 
 go 1.21.4
 
